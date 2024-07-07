@@ -1,30 +1,31 @@
 import dotenv from 'dotenv';
+import { MongoClient, ServerApiVersion } from 'mongodb'
+
+
 dotenv.config({ path: '../secrets.env' });
-const password = process.env.MONOGODB_PASSWORD;
+const MongoDB_URI = process.env.MONOGODB_URI;
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
-
-const uri = "mongodb+srv://devwithsmile:"+password+"@cluster0.u0ld7hk.mongodb.net/?appName=Cluster0";
+const uri = MongoDB_URI || "";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function run() {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+  
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // Connect the client to the server
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+  } catch (err) {
+    console.error(err);
   }
-}
-run().catch(console.dir);
+  
+  let db = client.db("books");
+  
+  export default db;

@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {db} from "./DB/databaseConnection.js"
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +15,8 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+// database connection here
+// till here
 
 var isUserAuthorized = false;
 

@@ -13,7 +13,7 @@ userRouter.use(bodyParser.json());
 let db = connectDB("Books");
 const saltRound = 12;
 
-let isLogin= false;
+let isLogin = false;
 
 // Configure Google OAuth Strategy
 passport.use(new GoogleStrategy({
@@ -37,7 +37,7 @@ passport.use(new GoogleStrategy({
             });
 
             await user.save();
-            console.log("New user saved:", user);
+            // console.log("New user saved:", user);
         } else {
             console.log("User already exists:", user);
         }
@@ -58,15 +58,18 @@ passport.deserializeUser((obj, done) => {
 });
 
 // login with google
-userRouter.post("/", passport.authenticate("google", {
+userRouter.get("/", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
 
 userRouter.get("/saveFromGoogle", passport.authenticate("google", { failureRedirect: "/failGoogle" }), (req, res) => {
-    res.status(200).send("User saved successfully!");
+    // Set a cookie with isLoggedIn as true
+    isLogin = true;
+    res.cookie('isLoggedIn', isLogin, { httpOnly: false, secure: false });
+    res.redirect("http://localhost:5173/");
 });
 
-userRouter.get("/failGoogle",(req,res)=>{
+userRouter.get("/failGoogle", (req, res) => {
     res.status(401).send("Error in saving profile");
 })
 

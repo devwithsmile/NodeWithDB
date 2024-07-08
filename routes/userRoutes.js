@@ -58,7 +58,7 @@ passport.deserializeUser((obj, done) => {
 });
 
 // login with google
-userRouter.get("/", passport.authenticate("google", {
+userRouter.post("/", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
 
@@ -98,7 +98,7 @@ userRouter.post("/login", async (req, res) => {
 });
 
 
-userRouter.post("/", async (req, res) => {
+userRouter.post("/register", async (req, res) => {
     try {
         const existingUser = await UserDetails.findOne({ username: req.body.username });
 

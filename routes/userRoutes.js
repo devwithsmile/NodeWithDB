@@ -62,9 +62,13 @@ userRouter.post("/", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
 
-userRouter.get("/saveFromGoogle", passport.authenticate("google", { failureRedirect: "/" }), (req, res) => {
+userRouter.get("/saveFromGoogle", passport.authenticate("google", { failureRedirect: "/failGoogle" }), (req, res) => {
     res.status(200).send("User saved successfully!");
 });
+
+userRouter.get("/failGoogle",(req,res)=>{
+    res.status(401).send("Error in saving profile");
+})
 
 userRouter.get("/allUsers", async (req, res) => {
     try {

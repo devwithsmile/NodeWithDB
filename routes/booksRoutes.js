@@ -36,6 +36,10 @@ bookRouter.get("/:bookName", async (req, res) => {
 
 bookRouter.post("/", async (req, res) => {
     try {
+        const book = await BookDetails.findOne({title:req.body.title});
+        if(book){
+            return res.status(409).send("book already there")
+        }
         const newBook = new BookDetails({
             title: req.body.title,
             author: req.body.author,

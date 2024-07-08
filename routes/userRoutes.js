@@ -13,6 +13,8 @@ userRouter.use(bodyParser.json());
 let db = connectDB("Books");
 const saltRound = 12;
 
+let isLogin= false;
+
 // Configure Google OAuth Strategy
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
@@ -74,19 +76,27 @@ userRouter.get("/allUsers", async (req, res) => {
     }
 });
 
-userRouter.get("/:username", async (req, res) => {
-    const username = req.params.username;
+userRouter.post("/login", async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
     try {
         const user = await UserDetails.findOne({ username: username });
         if (!user) {
             return res.status(404).send("User not found");
         }
-        res.json(user);
+        // Compare the provided password with the stored hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            res.status(200).send("Login successful");
+        } else {
+            res.status(401).send("Incorrect password");
+        }
     } catch (err) {
         console.error("Error fetching user:", err);
         res.status(500).send("Error fetching user");
     }
 });
+
 
 userRouter.post("/", async (req, res) => {
     try {

@@ -3,6 +3,8 @@ import bodyParser from "body-parser";
 import UserDetails from "../DB/model/UserDetails.js";
 import connectDB from "../DB/db.js";
 import bcrypt from "bcrypt";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
 const userRouter = express.Router();
 userRouter.use(bodyParser.json());
@@ -11,6 +13,65 @@ let db = connectDB("Books");
 const saltRound = 12;
 
 let isLogin = false;
+
+// Check whether user is authenticated or not
+function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.status(401).send({ message: "Unauthorized" });
+}
+
+// Configure Local Auth Strategy
+passport.use(
+    new LocalStrategy(
+        {
+            passReqToCallback: true,
+        },
+        async (req, username, password, done) => {
+            try {
+                console.log(
+                    "Local Username and Password: ",
+                    username,
+                    password
+                );
+                const user = await UserDetails.findOne({ username: username });
+
+                if (!user) {
+                    return done(null, false, {
+                        message: "User not found / Incorrect username",
+                    });
+                }
+
+                const isMatch = await bcrypt.compare(password, user.password);
+
+                if (!isMatch) {
+                    return done(null, false, {
+                        message: "Incorrect password.",
+                    });
+                }
+
+                return done(null, user);
+            } catch (err) {
+                // return done(err);
+                console.error("Error fetching user:", err);
+            }
+        }
+    )
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await UserDetails.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
 
 // Get all the User list
 userRouter.get("/allUsers", async (req, res) => {
@@ -24,31 +85,21 @@ userRouter.get("/allUsers", async (req, res) => {
 });
 
 // User Login
-userRouter.post("/login", async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+userRouter.post("/login", passport.authenticate("local"), async (req, res) => {
+    console.log("isAuthenticated ------->", req.isAuthenticated());
+    res.send({ message: "Login successful!" });
+});
 
-    try {
-        const user = await UserDetails.findOne({ username: username });
-        if (!user) {
-            return res.status(404).send("User not found");
+// User Logout
+userRouter.post("/logout", (req, res) => {
+    // console.log("isAuthenticated ------->", req.isAuthenticated());
+    req.logout((err) => {
+        if (err) {
+            return next(err);
         }
-        // Compare the provided password with the stored hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (isMatch) {
-            isLogin = true;
-            res.cookie("isLoggedIn", isLogin, {
-                httpOnly: false,
-                secure: false,
-            });
-            res.status(200).send("Login successful");
-        } else {
-            res.status(401).send("Incorrect password");
-        }
-    } catch (err) {
-        console.error("Error fetching user:", err);
-        res.status(500).send("Error fetching user");
-    }
+        res.send({ message: "Logout successful!" });
+    });
+    console.log("isAuthenticated ------->", req.isAuthenticated());
 });
 
 // User Registration/Sign Up
@@ -108,8 +159,8 @@ userRouter.put("/:username", async (req, res) => {
     }
 });
 
-// Delete the account
-userRouter.delete("/:username", async (req, res) => {
+// Delete the account + only authenticated user can delete is
+userRouter.delete("/:username", isAuthenticated, async (req, res) => {
     const username = req.params.username;
 
     try {

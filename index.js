@@ -26,6 +26,7 @@ app.use(
         secret: SECRET_SESSION_KEY, // replace with a secure key
         resave: false,
         saveUninitialized: true,
+        cookie: { secure: false }, // Set to true if using HTTPS
     })
 );
 

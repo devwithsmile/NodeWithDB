@@ -1,12 +1,10 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import BookDetails from '../DB/model/bookDetails.js';
-import connectDB from '../DB/db.js';
-
+import express from "express";
+import bodyParser from "body-parser";
+import BookDetails from "../DB/model/bookDetails.js";
+import connectDB from "../DB/db.js";
 
 const bookRouter = express.Router();
 bookRouter.use(bodyParser.json());
-
 
 let db = connectDB("Books");
 
@@ -36,14 +34,14 @@ bookRouter.get("/:bookName", async (req, res) => {
 
 bookRouter.post("/", async (req, res) => {
     try {
-        const book = await BookDetails.findOne({title:req.body.title});
-        if(book){
-            return res.status(409).send("book already there")
+        const book = await BookDetails.findOne({ title: req.body.title });
+        if (book) {
+            return res.status(409).send("book already there");
         }
         const newBook = new BookDetails({
             title: req.body.title,
             author: req.body.author,
-            date: req.body.date // Save date as formatted string
+            date: req.body.date, // Save date as formatted string
         });
 
         await newBook.save();

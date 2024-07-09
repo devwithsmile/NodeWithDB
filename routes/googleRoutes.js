@@ -24,7 +24,7 @@ passport.use(
             callbackURL: "http://localhost:2000/google/saveFromGoogle",
             userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
         },
-        async (accessToken, refreshToken, profile, done) => {
+        async (request, accessToken, refreshToken, profile, done) => {
             // console.log("Google profile:", profile);
 
             try {
@@ -45,7 +45,8 @@ passport.use(
                     console.log("User already exists:", user);
                 }
 
-                return done(null, user);
+                // console.log("User profile:", user);
+                return done(null, profile);
             } catch (err) {
                 console.error("Error during Google authentication:", err);
                 return done(err, null);
@@ -55,14 +56,42 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
+    console.log(`\n--------> Serialize User:`);
+    console.log(user);
     done(null, user);
 });
 
 passport.deserializeUser((obj, done) => {
+    console.log("\n--------- Deserialized User:");
+    console.log(obj);
     done(null, obj);
 });
 
-// login with google
+//console.log() values of "req.session" and "req.user" so we can see what is happening during Google Authentication
+let count = 1;
+const showlogs = (req, res, next) => {
+    console.log("\n==============================");
+    console.log(`------------>  ${count++}`);
+
+    console.log(`\n req.session.passport -------> `);
+    console.log(req.session.passport);
+
+    console.log(`\n req.user -------> `);
+    console.log(req.user);
+
+    console.log("\n Session and Cookie");
+    console.log(`req.session.id -------> ${req.session.id}`);
+    console.log(`req.session.cookie -------> `);
+    console.log(req.session.cookie);
+
+    console.log("===========================================\n");
+
+    next();
+};
+
+googleRouter.use(showlogs);
+
+// Google login
 googleRouter.get(
     "/auth",
     passport.authenticate("google", {
@@ -70,7 +99,7 @@ googleRouter.get(
     })
 );
 
-// Successful google login
+// Successful Google login
 googleRouter.get(
     "/saveFromGoogle",
     passport.authenticate("google", { failureRedirect: "/failGoogle" }),
@@ -84,7 +113,27 @@ googleRouter.get(
 
 // Google login failed
 googleRouter.get("/failGoogle", (req, res) => {
+    isLogin = false;
+    res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
     res.status(401).send("Error in saving profile");
+});
+
+// Google logout
+googleRouter.get("/logout", (req, res) => {
+    if (req.isAuthenticated()) {
+        req.logOut(req.user, (err) => {
+            if (err) return next(err);
+            res.redirect("http://localhost:5173/");
+            // If React needs error message
+            // return res.status(500).json({ message: "Error during logout." });
+        });
+        console.log(`-------> User Logged out`);
+    } else {
+        console.log(`-------> User hasn't logged in`);
+        // Instead of redirecting we can send a success message
+        // res.status(200).json({ message: "Logout successful." });
+        res.redirect("http://localhost:5173/");
+    }
 });
 
 export default googleRouter;

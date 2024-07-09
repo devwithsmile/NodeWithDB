@@ -3,9 +3,6 @@ import bodyParser from "body-parser";
 import UserDetails from "../DB/model/UserDetails.js";
 import connectDB from "../DB/db.js";
 import bcrypt from "bcrypt";
-import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth2";
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../config.js";
 
 const userRouter = express.Router();
 userRouter.use(bodyParser.json());
@@ -39,6 +36,11 @@ userRouter.post("/login", async (req, res) => {
         // Compare the provided password with the stored hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
+            isLogin = true;
+            res.cookie("isLoggedIn", isLogin, {
+                httpOnly: false,
+                secure: false,
+            });
             res.status(200).send("Login successful");
         } else {
             res.status(401).send("Incorrect password");

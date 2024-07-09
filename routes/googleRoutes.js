@@ -113,8 +113,9 @@ googleRouter.get(
 
 // Google login failed
 googleRouter.get("/failGoogle", (req, res) => {
+    const expiresIn24Hours = new Date(Date.now() + 24 * 60 * 60 * 1000);
     isLogin = false;
-    res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
+    res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false ,expires:expiresIn24Hours});
     res.status(401).send("Error in saving profile");
 });
 

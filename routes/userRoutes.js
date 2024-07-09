@@ -84,11 +84,17 @@ userRouter.get("/allUsers", async (req, res) => {
     }
 });
 
-// User Login
 userRouter.post("/login", passport.authenticate("local"), async (req, res) => {
+    const isLogin = true; // Ensure isLogin is defined and set to true
     console.log("isAuthenticated ------->", req.isAuthenticated());
+
+    // Set cookie
+    res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
+
+    console.log("Cookie set.");
     res.send({ message: "Login successful!" });
 });
+
 
 // User Logout
 userRouter.post("/logout", (req, res) => {

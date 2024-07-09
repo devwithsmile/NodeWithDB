@@ -123,6 +123,8 @@ googleRouter.get("/logout", (req, res) => {
     if (req.isAuthenticated()) {
         req.logOut(req.user, (err) => {
             if (err) return next(err);
+            isLogin =false;
+            res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
             res.redirect("http://localhost:5173/");
             // If React needs error message
             // return res.status(500).json({ message: "Error during logout." });

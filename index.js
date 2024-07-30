@@ -39,5 +39,9 @@ app.use("/books", bookRouter);
 app.use("/user", userRouter);
 app.use("/google", googleRouter);
 
+app.get("/",async (req,res)=>{
+    res.status(200).send("Application working fine");
+})
+
 // Start server
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

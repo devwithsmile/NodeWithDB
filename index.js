@@ -13,7 +13,7 @@ import { SECRET_SESSION_KEY } from "./config.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const port = 2000;
+const port = 3000;
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));

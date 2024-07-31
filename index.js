@@ -1,14 +1,15 @@
-import cors from "cors";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import express from "express";
-import passport from "passport";
-import bodyParser from "body-parser";
-import session from "express-session";
-import bookRouter from "./routes/booksRoutes.js";
-import userRouter from "./routes/userRoutes.js";
-import googleRouter from "./routes/googleRoutes.js";
-import { SECRET_SESSION_KEY } from "./config.js";
+import cors from 'cors';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
+import passport from 'passport';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import bookRouter from './routes/booksRoutes.js';
+import userRouter from './routes/userRoutes.js';
+import googleRouter from './routes/googleRoutes.js';
+import { SECRET_SESSION_KEY } from './config.js';
+import authRouter from './routes/authRoutes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,13 +36,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use("/books", bookRouter);
-app.use("/user", userRouter);
-app.use("/google", googleRouter);
+app.use('/books', bookRouter);
+app.use('/user', userRouter);
+app.use('/google', googleRouter);
+app.use('/api/auth', authRouter);
 
-app.get("/",async (req,res)=>{
-    res.status(200).send("Application working fine");
-})
+app.get('/', async (req, res) => {
+    res.status(200).send('Application working fine');
+});
 
 // Start server
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

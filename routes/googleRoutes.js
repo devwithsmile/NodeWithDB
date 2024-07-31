@@ -21,7 +21,7 @@ passport.use(
         {
             clientID: GOOGLE_CLIENT_ID,
             clientSecret: GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://localhost:2000/google/saveFromGoogle",
+            callbackURL: "https://nodewithdb.onrender.com/google/saveFromGoogle",
             userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
         },
         async (request, accessToken, refreshToken, profile, done) => {
@@ -107,7 +107,7 @@ googleRouter.get(
         // Set a cookie with isLoggedIn as true
         isLogin = true;
         res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
-        res.redirect("http://localhost:5173/");
+        res.redirect("https://react-book-alpha.vercel.app/");
     }
 );
 
@@ -126,7 +126,7 @@ googleRouter.get("/logout", (req, res) => {
             if (err) return next(err);
             isLogin =false;
             res.cookie("isLoggedIn", isLogin, { httpOnly: false, secure: false });
-            res.redirect("http://localhost:5173/");
+            res.redirect("https://react-book-alpha.vercel.app/");
             // If React needs error message
             // return res.status(500).json({ message: "Error during logout." });
         });
@@ -135,7 +135,7 @@ googleRouter.get("/logout", (req, res) => {
         console.log(`-------> User hasn't logged in`);
         // Instead of redirecting we can send a success message
         // res.status(200).json({ message: "Logout successful." });
-        res.redirect("http://localhost:5173/");
+        res.redirect("https://react-book-alpha.vercel.app/");
     }
 });
 
